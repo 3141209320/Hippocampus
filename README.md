@@ -124,7 +124,7 @@
 
 1. **克隆项目**
    ```bash
-   git clone https://github.com/你的用户名/Hippocampus.git
+   git clone https://github.com/3141209320/Hippocampus.git
    cd Hippocampus
    ```
 
