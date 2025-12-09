@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - Hippocampus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 h-screen flex flex-col justify-center items-center">
+
+    <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-indigo-600 mb-2">创建新账号</h1>
+            <p class="text-gray-400">开启你的智能刷题之旅</p>
+        </div>
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                <div class="mt-1">
+                    {{ field }}
+                </div>
+                {% if field.help_text %}
+                <p class="mt-1 text-xs text-gray-400">{{ field.help_text|safe }}</p>
+                {% endif %}
+                {% for error in field.errors %}
+                <p class="mt-1 text-xs text-red-500">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endfor %}
+
+            <style>
+                /* Hack Django form styling */
+                input {
+                    width: 100%;
+                    padding: 0.5rem 1rem;
+                    border: 1px solid #d1d5db;
+                    border-radius: 0.5rem;
+                    outline: none;
+                    transition: all;
+                }
+
+                input:focus {
+                    border-color: #6366f1;
+                    ring: 2px;
+                    --tw-ring-color: #6366f1;
+                }
+
+                ul.errorlist {
+                    color: red;
+                    font-size: 0.75rem;
+                }
+            </style>
+
+            <button type="submit"
+                class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-bold hover:bg-indigo-700 transition transform active:scale-95">
+                注册并登录
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-sm text-gray-500">
+            已有账号？ <a href="{% url 'login' %}" class="text-indigo-600 font-bold hover:underline">去登录</a>
+        </div>
+    </div>
+
+</body>
+
+</html>

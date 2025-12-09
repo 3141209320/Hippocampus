@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的错题本 - Hippocampus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-gray-100 mb-8 sticky top-0 z-10">
+        <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="{% url 'exam_list' %}" class="text-xl font-bold text-indigo-600 flex items-center gap-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z">
+                    </path>
+                </svg>
+                Hippocampus
+            </a>
+            <div class="flex items-center gap-4">
+                {% if user.is_staff %}
+                <a href="/admin/"
+                    class="text-sm font-bold text-gray-400 hover:text-indigo-600 transition flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                        </path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </a>
+                {% endif %}
+                <div class="text-sm font-medium text-gray-500">我的错题本</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto px-4 pb-20">
+
+        {% if mistakes %}
+        <div class="grid gap-6">
+            {% for m in mistakes %}
+            <div id="mistake-{{ m.question.id }}"
+                class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition group relative">
+
+                <!-- Remove Button -->
+                <button onclick="removeMistake({{ m.question.id }})"
+                    class="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition p-2 bg-gray-50 hover:bg-red-50 rounded-lg"
+                    title="移出错题本">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                        </path>
+                    </svg>
+                </button>
+
+                <!-- Badge -->
+                <div class="mb-4 flex items-center gap-3">
+                    <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-red-50 text-red-600">错题</span>
+                    <span class="text-xs text-gray-400">来源: {{ m.question.paper.title }}</span>
+                    <span class="text-xs text-gray-300">记录时间: {{ m.last_mistake_time|date:"Y-m-d H:i" }}</span>
+                </div>
+
+                <!-- Questions Content -->
+                <div class="mb-4">
+                    <div class="text-gray-800 font-medium whitespace-pre-wrap mb-4">{{ m.question.content }}</div>
+
+                    {% if m.question.options %}
+                    <div class="space-y-2 pl-4 border-l-2 border-gray-100">
+                        {% for opt in m.question.options %}
+                        <div class="text-sm text-gray-600 flex gap-2">
+                            <span class="font-bold text-gray-400 w-4">{{ opt.label }}.</span>
+                            <span>{{ opt.content }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Answer (Hidden by default, toggleable)-->
+                <details class="group/ans">
+                    <summary
+                        class="cursor-pointer text-sm font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 select-none w-fit">
+                        <span>查看答案 & 解析</span>
+                        <svg class="w-4 h-4 transition-transform group-open/ans:rotate-180" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                    </summary>
+                    <div class="mt-4 bg-gray-50 rounded-xl p-4 border border-gray-100 text-sm">
+                        <div class="mb-2"><span class="font-bold text-gray-900">参考答案：</span> {{ m.question.answer }}
+                        </div>
+                        {% if m.question.explanation %}
+                        <div class="text-gray-600 leading-relaxed"><span class="font-bold text-gray-900">解析：</span>{{
+                            m.question.explanation }}</div>
+                        {% endif %}
+                    </div>
+                </details>
+
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-20">
+            <div class="text-6xl mb-4">🎉</div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2">太棒了！暂无错题</h2>
+            <p class="text-gray-500 mb-8">继续保持，去刷套卷子挑战一下吧</p>
+            <a href="{% url 'exam_list' %}"
+                class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition">去刷题</a>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <script>
+        function removeMistake(questionId) {
+            if (!confirm('确定将此题移出错题本吗？')) return;
+
+            fetch('/api/toggle_mistake/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ question_id: questionId })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'removed') {
+                        const card = document.getElementById('mistake-' + questionId);
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            card.remove();
+                            // Check if empty (optional reload)
+                            if (document.querySelectorAll('[id^="mistake-"]').length === 0) location.reload();
+                        }, 300);
+                    }
+                });
+        }
+    </script>
+
+</body>
+
+</html>

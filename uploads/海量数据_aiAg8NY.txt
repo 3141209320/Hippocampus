@@ -1,0 +1,772 @@
+海量数据处理课程试卷参考答案
+一、单选题（共 17 题，85.0 分）
+1. （单选题，5.0 分）
+在 MapReduce 中，以下哪个组件负责将输入数据切分成若干个 Split？
+
+A Mapper
+
+B Reducer
+
+C OutputFormat
+
+D InputFormat
+
+答案：D
+
+解析：InputFormat 负责将输入数据逻辑切分为 InputSplit，每个 Split 由一个 Mapper 处理。Mapper、Reducer 和 OutputFormat 分别负责映射计算、归约计算和输出写入，不参与数据切分。
+
+2. （单选题，5.0 分）
+以下哪个指令可以改变指定文件的副本数( )。
+
+A hadoop fs -rm 
+
+B hadoop fs -copyFromLocal  
+
+C hadoop fs -settrep [-R] 
+
+D hadoop fs -get [-ignorecrc] [-crc]  
+
+答案：C
+
+解析：正确命令应为 hadoop fs -setrep（题目中拼写为 settrep，属常见笔误）。该命令用于设置 HDFS 文件的副本数量，-R 表示递归修改目录下所有文件。其他选项分别为删除、上传、下载操作。
+
+3. （单选题，5.0 分）
+Hadoop 生态系统中，用于实时查询的组件是哪个？
+
+A Hive
+
+B Impala
+
+C Pig
+
+D HBase
+
+答案：B
+
+解析：Impala 是专为低延迟、交互式 SQL 查询设计的 MPP 引擎，支持实时分析；Hive 为批处理，Pig 为数据流脚本工具，HBase 是 NoSQL 数据库（支持实时读写但非 SQL 查询引擎）。
+
+4. （单选题，5.0 分）
+在 MapReduce 中，以下哪项是 Reduce 函数的主要职责？
+
+A 执行Map函数
+
+B 将输入数据切分成Split
+
+C 对相同Key的值进行合并处理
+
+D 将数据写入内存
+
+答案：C
+
+解析：Reduce 函数接收 <key, list(values)>，对同一 key 的所有 value 进行聚合或归约操作，如求和、计数等。
+
+5. （单选题，5.0 分）
+在 Hadoop 安装过程中，配置文件 core-site.xml 通常用于设置什么？
+
+A Hadoop 的临时目录路径
+
+B HDFS 的默认块大小
+
+C HBase 的主节点地址
+
+D YARN 的资源管理器地址
+
+答案：A
+
+解析：core-site.xml 定义 Hadoop 核心参数，如 fs.defaultFS（NameNode 地址）、hadoop.tmp.dir（临时目录）。HDFS 块大小在 hdfs-site.xml 中设置。
+
+6. （单选题，5.0 分）
+在 MapReduce 中，以下哪项描述了 Map 函数的作用？
+
+A 对键值对进行排序
+
+B 将数据写入HDFS
+
+C 合并具有相同Key的值
+
+D 将输入数据转换为键值对形式
+
+答案：D
+
+解析：Mapper 的核心作用是将原始输入（如文本行）解析为 <key, value> 对，供后续处理。
+
+7. （单选题，5.0 分）
+HDFS 中，一个大文件被分割成多个什么单位进行存储？
+
+A 页（Page）
+
+B 簇（Cluster）
+
+C 块（Block）
+
+D 记录
+
+答案：C
+
+解析：HDFS 将文件按固定大小（默认 128MB）切分为 Block，分布存储在 DataNode 上。
+
+8. （单选题，5.0 分）
+HDFS 不适合用于以下哪种场景？
+
+A 数据备份和容错
+
+B 低延迟数据访问
+
+C 批量数据处理
+
+D 大规模文件的存储
+
+答案：B
+
+解析：HDFS 为高吞吐批处理优化，不支持毫秒级响应，不适合实时/低延迟应用（如在线事务处理）。
+
+9. （单选题，5.0 分）
+Hadoop 的核心组件之一 MapReduce 主要用于什么？
+
+A 网络通信协议
+
+B 分布式文件存储
+
+C 数据库查询优化
+
+D 分布式计算框架
+
+答案：D
+
+解析：MapReduce 是 Hadoop 的分布式计算模型，用于并行处理大规模数据集。
+
+10. （单选题，5.0 分）
+以下哪个指令可以删除指定HDFS文件( )。
+
+A hadoop fs -rm 
+
+B hadoop fs -get [-ignorecrc] [-crc]  
+
+C hadoop fs -mkdirs [-p] 
+
+D hadoop fs -copyFromLocal  
+
+答案：A
+
+解析：-rm 用于删除 HDFS 上的文件或目录（类似 Linux 的 rm）。
+
+11. （单选题，5.0 分）
+在 MapReduce 中，以下哪项描述了 Combiner 函数的作用？
+
+A 将数据写入HDFS
+
+B 执行Reduce函数
+
+C 在Map端对中间结果进行局部聚合
+
+D 将多个Map任务的结果合并
+
+答案：C
+
+解析：Combiner 是“本地 Reducer”，用于减少网络传输的数据量，提升 Shuffle 性能。
+
+12. （单选题，5.0 分）
+在 MapReduce 中，以下哪种方式可以提高 Shuffle 阶段的性能？
+
+A 减少Reduce任务的数量
+
+B 使用Combiner函数
+
+C 增加Map任务的数量
+
+D 增大Split的大小
+
+答案：B
+
+解析：Combiner 减少 map 输出到 reduce 的数据量，直接优化 Shuffle 阶段的 I/O 和网络开销。
+
+13. （单选题，5.0 分）
+HDFS 中负责管理命名空间的组件是？
+
+A Secondary NameNode
+
+B DataNode
+
+C NameNode
+
+D TaskTracker
+
+答案：C
+
+解析：NameNode 管理文件系统的元数据（目录树、文件到 Block 的映射等），即命名空间。
+
+14. （单选题，5.0 分）
+在 MapReduce 编程模型中，以下哪一项描述了 Shuffle 阶段的主要作用？
+
+A 负责启动Map任务
+
+B 负责执行Reduce函数
+
+C 负责将Map输出的数据按照Key进行分区并排序
+
+D 负责将Map输出的数据写入磁盘
+
+答案：C
+
+解析：Shuffle 包括：分区（Partitioning）、排序（Sorting）、合并（Merging）、传输（Copying）到 Reduce 节点。
+
+15. （单选题，5.0 分）
+Hadoop 的分布式文件系统是？
+
+A HDFS
+
+B YARN
+
+C HBase
+
+D ZooKeeper
+
+答案：A
+
+解析：HDFS（Hadoop Distributed File System）是 Hadoop 的核心存储组件。
+
+16. （单选题，5.0 分）
+HDFS 的数据读取过程通常遵循哪种策略？
+
+A 每次读取都从主节点读取
+
+B 就近原则，优先从距离最近的 DataNode 读取
+
+C 随机读取，不考虑节点位置
+
+D 只从 NameNode 读取
+
+答案：B
+
+解析：HDFS 支持机架感知（Rack Awareness），客户端优先从本地或同机架的 DataNode 读取数据，降低网络延迟。
+
+17. （单选题，5.0 分）
+HDFS 的体系结构采用的是哪种模式？
+
+A 主从（Master/Slave）结构
+
+B 星型结构
+
+C 对等（Peer-to-Peer）结构
+
+D 树状结构
+
+答案：A
+
+解析：NameNode（Master）管理元数据，DataNode（Slave）存储实际数据块，是典型的主从架构。
+
+二、多选题（共 15 题，75.0 分）
+18. （多选题，5.0 分）
+在 MapReduce 中，以下哪些因素会影响程序的整体性能？
+
+A Mapper的代码逻辑
+
+B Combiner的使用
+
+C Reduce任务的数量
+
+D Map任务的数量
+
+E Split的大小
+
+答案：A、B、C、D、E
+
+解析：所有选项均影响性能：Mapper 逻辑复杂度影响单个任务耗时；Combiner 减少网络传输；Reduce/Map 任务数影响并行度；Split 大小决定任务数量和负载均衡。
+
+19. （多选题，5.0 分）
+在 MapReduce 中，以下哪些操作属于 Reduce 阶段？
+
+A 写入输出文件
+
+B 执行Reduce函数
+
+C 执行Map函数
+
+D Shuffle和Sort
+
+E 读取输入数据
+
+答案：A、B
+
+解析：Shuffle & Sort 是 Reduce 阶段的前置步骤（由框架完成）；执行 Reduce 函数是核心；写入输出由 OutputFormat 完成，属于 Reduce 阶段末尾。C 和 E 属于 Map 阶段。
+
+20. （多选题，5.0 分）
+在 MapReduce 中，以下哪些场景适合使用自定义 Partitioner？
+
+A 希望减少Reduce任务的数量
+
+B 需要根据特定规则将数据分配给不同的Reduce任务
+
+C 希望增加Map任务的数量
+
+D 希望提高Shuffle阶段的性能
+
+E 希望减少网络传输的数据量
+
+答案：B、D、E
+
+解析：自定义 Partitioner 主要用于按业务规则分区（如按地区、用户ID哈希等），实现负载均衡或语义分区；合理分区可避免数据倾斜，从而提升 Shuffle 性能、减少热点 Reduce 节点的网络压力。A 和 C 与 Partitioner 无关。
+
+21. （多选题，5.0 分）
+Hadoop 的优势包括以下哪些方面？
+
+A 高容错性
+
+B 适合批处理任务
+
+C 低延迟处理
+
+D 适用于小规模数据处理
+
+E 高扩展性
+
+答案：A、B、E
+
+解析：Hadoop 通过副本机制实现高容错；专为大规模批处理设计；支持横向扩展（加机器即可扩容）；不支持低延迟（C 错）；小文件效率低，不适合小规模数据（D 错）。
+
+22. （多选题，5.0 分）
+HDFS 的容错机制包括哪些方面？
+
+A 支持任意修改
+
+B 心跳检测
+
+C 数据校验
+
+D 自动故障转移
+
+E 数据复制
+
+答案：B、C、D、 E
+
+解析：数据复制（默认3副本）是基础容错；心跳检测：DataNode 定期向 NameNode 发送心跳，超时则标记宕机；数据校验：每个 Block 有 checksum，读取时校验；自动故障转移：HA 模式下，Standby NameNode 接管；HDFS 不支持任意修改（只支持追加写）→ A 错。
+
+23. （多选题，5.0 分）
+HDFS 的块（Block）具有哪些优势？
+
+A 提高存储效率
+
+B 支持任意修改
+
+C 简化系统设计
+
+D 便于数据备份
+
+E 适合存储大量小文件
+
+答案：A、C、D
+
+解析：大块（如128MB）减少元数据开销 → 提高存储效率；固定大小简化存储管理 → 简化系统设计；块级复制 → 便于备份；HDFS 不支持任意修改（B 错）；不适合小文件（每个小文件仍占一个 Block，浪费空间）→ E 错。
+
+24. （多选题，5.0 分）
+Hadoop 生态系统中，以下哪些组件用于数据仓库和数据分析？
+
+A Flume
+
+B Hive
+
+C HBase
+
+D Sqoop
+
+E Pig
+
+答案：B、D、E
+
+解析：Hive：基于 SQL 的数据仓库工具；Pig：提供高级数据流语言（Pig Latin），用于 ETL 和分析；Flume（日志采集）、Sqoop（关系库↔Hadoop 传输）、HBase（NoSQL 实时读写）不属于数据仓库/分析引擎。
+
+25. （多选题，5.0 分）
+在 MapReduce 中，以下哪些步骤属于 Map 阶段？
+
+A 执行Reduce函数
+
+B 执行Map函数
+
+C 读取输入数据
+
+D Shuffle和Sort
+
+E 写入输出文件
+
+答案：B、C
+
+解析：Map 阶段包括：读取输入（InputFormat）→ 执行 Map 函数 → 输出中间结果；Shuffle/Sort 是中间过程；Reduce 函数和最终输出属于 Reduce 阶段。
+
+26. （多选题，5.0 分）
+下列哪些是 Hadoop 生态系统的组成部分？
+
+A HBase
+
+B MapReduce
+
+C HDFS
+
+D MySQL
+
+E YARN
+
+答案：A、B、C、E
+
+解析：HBase、MapReduce、HDFS、YARN 都是官方 Hadoop 生态核心或常见组件；MySQL 是独立的关系数据库，不属于 Hadoop 生态。
+
+27. （多选题，5.0 分）
+在 MapReduce 中，以下哪些组件可以影响 Shuffle 阶段的性能？
+
+A InputFormat
+
+B Reducer
+
+C Combiner
+
+D Partitioner
+
+E Mapper
+
+答案：C、D
+
+解析：Mapper 输出量直接影响 Shuffle 数据量；Combiner 减少中间数据；Partitioner 决定数据如何分布到 Reduce，影响负载均衡；InputFormat 影响 Map 输入，不直接影响 Shuffle；Reducer 是消费者，不直接影响 Shuffle 过程本身。
+
+28. （多选题，5.0 分）
+Hadoop 安装配置过程中需要修改的配置文件包括哪些？
+
+A mapred-site.xml
+
+B hdfs-site.xml
+
+C mysql-config.xml
+
+D core-site.xml
+
+E yarn-site.xml
+
+答案：A、B、D、E
+
+解析：core-site.xml：Hadoop 核心参数；hdfs-site.xml：HDFS 配置；yarn-site.xml：YARN 资源管理配置；mapred-site.xml：MapReduce 运行模式；mysql-config.xml 不是 Hadoop 配置文件。
+
+29. （多选题，5.0 分）
+HDFS 的主要特点包括哪些？
+
+A 适合数据备份
+
+B 简化系统设计
+
+C 支持大规模文件存储
+
+D 支持多用户并发写入
+
+E 适合低延迟数据访问
+
+答案：A、B、C
+
+解析：多副本 → 适合备份；块式存储 + 主从架构 → 设计简洁；专为大文件优化；不支持并发写入（D 错）；不适合低延迟（E 错）。
+
+30. （多选题，5.0 分）
+在 MapReduce 中，以下哪些情况适合使用 Combiner 函数？
+
+A 当Map输出的数据量非常小时
+
+B 当Reduce函数是唯一性检查时
+
+C 当Reduce函数是加法操作时
+
+D 当Map输出的数据类型是字符串时
+
+E 当Map输出的中间结果具有可合并性时
+
+答案：C、E
+
+解析：Combiner 要求满足结合律且不影响最终结果，如 sum、max、min；加法（C）是典型适用场景；“可合并性”（E）是本质条件；唯一性检查（如去重）不能用 Combiner（局部去重 ≠ 全局去重）→ B 错；数据量小无需优化 → A 错；数据类型无关 → D 错。
+
+31. （多选题，5.0 分）
+HDFS 编程实践中常用的 API 包括哪些？
+
+A OutputStream
+
+B Path
+
+C FileSystem
+
+D Configuration
+
+E FileInputStream
+
+答案：B、C、D
+
+解析：Configuration：加载配置；FileSystem：操作 HDFS 的核心类；Path：表示 HDFS 路径；OutputStream：通过 FileSystem.create() 获取，用于写 HDFS；FileInputStream 是 Java 本地 IO 类，不用于 HDFS（HDFS 用 FSDataInputStream）。
+
+32. （多选题，5.0 分）
+HDFS 的数据写入过程涉及哪些步骤？
+
+A 客户端直接写入本地磁盘
+
+B 客户端向 NameNode 请求写入权限
+
+C 数据通过管道方式逐级复制到多个 DataNode
+
+D NameNode 返回可用的 DataNode 列表
+
+E NameNode 更新元数据
+
+答案：B、C、D、E
+
+解析：写入流程：客户端向 NameNode 申请写入（B）；NameNode 返回 DataNode 列表（D）；客户端以 pipeline 方式写入 DataNode 链（C）；写入完成后，NameNode 持久化元数据（E）；客户端不写本地磁盘（A 错）。
+
+三、判断题（共 11 题，55.0 分）
+33. （判断题，5.0 分）
+Hadoop 的 MapReduce 模型可以实现分布式计算。
+
+A 对
+
+B 错
+
+答案：A
+
+解析：MapReduce 是 Hadoop 的核心分布式计算模型，将任务分发到集群节点并行处理，是典型的分布式计算框架。
+
+34. （判断题，5.0 分）
+Hadoop 的 HDFS 能够自动复制数据以提高可靠性。
+
+A 对
+
+B 错
+
+答案：A
+
+解析：HDFS 默认将每个数据块复制 3 份（可配置），存储在不同 DataNode 上，实现高可靠性和容错能力。
+
+35. （判断题，5.0 分）
+HDFS 的 NameNode 负责存储实际数据。
+
+A 对
+
+B 错
+
+答案：B
+
+解析：NameNode 只管理元数据（如文件目录结构、Block 位置信息等），实际数据由 DataNode 存储。
+
+36. （判断题，5.0 分）
+HDFS 的数据读取过程会优先从距离客户端最近的 DataNode 读取。
+
+A 对
+
+B 错
+
+答案：A
+
+解析：HDFS 支持机架感知（Rack Awareness），客户端读取时优先选择本地 → 同机架 → 其他机架的 DataNode，以减少网络开销。
+
+37. （判断题，5.0 分）
+HDFS 的块大小默认为 128MB。
+
+A 对
+
+B 错
+
+答案：A
+
+解析：Hadoop 2.x 及以后版本中，HDFS 默认块大小为 128MB（早期 1.x 为 64MB）。当前主流环境均采用 128MB 或更大（如 256MB）。
+
+38. （判断题，5.0 分）
+在 MapReduce 中，Combiner 函数可以完全替代 Reduce 函数。
+
+A 对
+
+B 错
+
+答案：B
+
+解析：Combiner 是局部聚合优化手段，不能保证全局正确性。它仅在 Map 端对中间结果做预聚合，Reduce 函数仍必须执行以完成全局归约。
+
+39. （判断题，5.0 分）
+在 MapReduce 中，每个 Map 任务的输出都会直接传递给一个 Reduce 任务。
+
+A 对
+
+B 错
+
+答案：B
+
+解析：Map 输出会根据 Partitioner 规则分配给多个 Reduce 任务（通常按 key 分区），并非“一个 Map → 一个 Reduce”。一个 Map 的输出可能发送给所有 Reduce 任务。
+
+40. （判断题，5.0 分）
+HDFS 支持多用户同时写入同一个文件。
+
+A 对
+
+B 错
+
+答案：B
+
+解析：HDFS 不支持并发写入。同一时间只允许一个客户端以追加（append）方式写入文件（且需开启 append 功能），不允许多个 writer 同时写。
+
+41. （判断题，5.0 分）
+Hadoop 的安装过程不需要配置主机名和 IP 地址。
+
+A 对
+
+B 错
+
+答案：B
+
+解析：Hadoop 集群部署必须正确配置主机名与 IP 映射（如 /etc/hosts），否则节点间无法通信，NameNode 无法识别 DataNode。
+
+42. （判断题，5.0 分）
+在 MapReduce 中，Shuffle 阶段是 Map 和 Reduce 之间的中间步骤。
+
+A 对
+
+B 错
+
+答案：A
+
+解析：Shuffle 包括：Map 输出排序、分区、合并，并通过网络传输到 Reduce 节点，是连接 Map 与 Reduce 的关键中间过程。
+
+43. （判断题，5.0 分）
+Hadoop 生态系统中的 Hive 是一种基于 SQL 的数据查询语言。
+
+A 对
+
+B 错
+
+答案：A
+
+解析：Hive 本身是一个数据仓库工具，不是“语言”；它提供 HiveQL（HQL），是一种类 SQL 的查询语言。题目表述“Hive 是一种……语言”不准确。
+
+四、简答题（共 10 题，50.0 分）
+44. （简答题，5.0 分）
+简述 HDFS 体系结构。
+
+答案：
+HDFS采用了主从(Master/Slave)结构模型，一个HDFS集群包括一个名称节点(NameNode)和若干个数据节点(DataNode)。
+名称节点作为中心服务器，负责管理文件系统的命名空间及客户端对文件的访问。
+集群中的数据节点一般是一个节点运行一个数据节点进程，负责处理文件系统客户端的读/写请求，在名称节点的统一调度下进行数据块的创建、删除和复制等操作。
+
+45. （简答题，5.0 分）
+请描述 HDFS 的数据写入流程。
+
+答案：
+HDFS 的数据写入流程包括：客户端向 NameNode 请求写入权限，NameNode 返回可用的 DataNode 列表，
+客户端将数据通过管道方式写入多个 DataNode，并由 NameNode 更新元数据。
+
+46. （简答题，5.0 分）
+简述 HDFS 只设置唯一一个名称节点所带来的局限性。
+
+答案：
+HDFS只设置唯一一个名称节点所带来的局限性主要包括:
+(1)命名空间的限制:名称节点是保存在内存中的，因此，名称节点能够容纳的对象(文件、块)的个数会受到内存空间大小的限制。
+(2)性能的瓶颈:整个分布式文件系统的吞吐量，受限于单个名称节点的吞吐量。
+(3)隔离问题:由于集群中只有一个名称节点，只有一个命名空间，因此，无法对不同应用程序进行隔离。
+(4)集群的可用性:一旦这个唯一的名称节点发生故障，会导致整个集群变得不可用。
+
+47. （简答题，5.0 分）
+请简述 HDFS 的主从架构及其各个组件的作用。
+
+答案：
+HDFS 采用主从（Master/Slave）架构，主要包括 NameNode 和 DataNode。
+NameNode 负责管理文件系统的命名空间和元数据，而 DataNode 负责存储和管理实际的数据块。
+
+48. （简答题，5.0 分）
+请解释 Hadoop 中的 NameNode 和 DataNode 的作用。
+
+答案：
+NameNode 是 HDFS 的主节点，负责管理文件系统的命名空间和元数据。
+DataNode 是 HDFS 的工作节点，负责存储实际的数据块，并向 NameNode 报告数据块的状态。
+
+49. （简答题，5.0 分）
+请简述 Hadoop 的核心组件及其作用。
+
+答案：
+Hadoop 的核心组件包括 HDFS（分布式文件系统）和 MapReduce（分布式计算框架）。
+HDFS 用于存储大规模数据，MapReduce 用于处理这些数据。
+此外，YARN 作为资源管理器，负责集群资源的调度和管理。
+
+三者共同构成 Hadoop 生态的基础。
+50. （简答题，5.0 分）
+Hadoop 生态系统中有哪些常见的数据处理工具？请列举并简要说明其用途。
+
+答案：
+Hadoop 生态系统中常见的数据处理工具包括 
+Hive（用于数据仓库查询）、Pig（用于数据流处理）、
+HBase（用于 NoSQL 数据库）、Sqoop（用于数据迁移）和 Impala（用于实时查询）。
+
+51. （简答题，5.0 分）
+Hadoop 安装配置过程中需要注意哪些关键步骤？
+
+答案：
+Hadoop 安装配置的关键步骤包括：
+关闭防火墙、配置主机名和 IP 地址映射、安装 Java 环境、解压 Hadoop 包、配置环境变量、
+修改 Hadoop 相关配置文件（如 core-site.xml、hdfs-site.xml、mapred-site.xml 和 yarn-site.xml）以及启动 Hadoop 集群。
+
+52. （简答题，5.0 分）
+详解 Secondary NameNode 的工作过程。
+
+答案：
+Secondary NameNode的工作过程如下。
+(1)SecondaryNameNode会定期和NameNode通信，请求其停止使用EditLog文件，暂时将新的写操作写到一个新的文件edit.new上来，这个操作是瞬间完成，上层写日志的函数完全感觉不到差别。
+(2)SecondaryNameNode通过HTTP GET方式从NameNode上获取到FsImage和EditLog文件，并下载到本地的相应目录下。
+(3)SecondaryNameNode将下载下来的FsImage载入到内存，然后一条一条地执行EditLog文件中的各项更新操作，使得内存中的FsImage保持最新;这个过程就是EditLog和FsImage文件合并。
+(4)SecondaryNameNode执行完(3)操作之后，会通过post方式将新的FsImage文件发送到NameNode节点上。
+(5)NameNode将从SecondaryNameNode接收到的新的FsImage替换旧的FsImage文件，同时将edit.new替换EditLog文件，通过这个过程EditLog就变小了。
+
+53. （简答题，5.0 分）
+请简述 MapReduce 编程模型中 Map 和 Reduce 函数的作用，并举例说明一个实际应用场景。
+
+答案：
+Map函数的作用是将输入数据转换为键值对形式，以便后续的Shuffle和Reduce操作。
+Reduce函数的作用是对相同Key的所有值进行合并处理，生成最终的输出结果。 
+一个常见的应用场景是统计文档中单词出现的频率。
+在Map阶段，每个文档会被分割成单词，并输出键值对（单词，1）。
+在Shuffle阶段，相同的单词会被分组。
+在Reduce阶段，对每个单词的所有计数进行求和，得到最终的词频统计结果。
+
+五、填空题（共 10 题，50.0 分）
+54. （填空题，5.0 分）
+在 MapReduce 中，Combiner 函数的作用是在 ________ 端对中间结果进行 ________ 处理，以减少传输到 ________ 端的数据量。
+
+答案：Map；局部聚合；Reduce
+
+55. （填空题，5.0 分）
+HDFS 的数据读取过程通常遵循 ______ 原则，优先从距离客户端最近的 ______ 读取数据。
+
+答案：就近；DataNode
+
+56. （填空题，5.0 分）
+在 MapReduce 中，Shuffle 阶段主要包括 ________ 和 ________ 两个步骤。
+
+答案：分区；排序
+
+57. （填空题，5.0 分）
+HDFS 的 NameNode 负责管理 ______ 和 ______，而 DataNode 负责存储和读取 ______。
+
+答案：命名空间；元数据；数据块
+
+58. （填空题，5.0 分）
+HDFS 的数据复制因子默认为 ______，可以通过配置参数 dfs.replication 进行设置。
+
+答案：3
+
+59. （填空题，5.0 分）
+Hadoop 的分布式文件系统称为 ________，其核心思想是 ________。
+
+答案：HDFS；将大文件分割成小块并存储在多个节点上
+
+60. （填空题，5.0 分）
+Hadoop 生态系统中，用于数据采集的工具是 ________，用于数据迁移的工具是 ________。
+
+答案：Flume；Sqoop
+
+61. （填空题，5.0 分）
+HDFS 的块大小默认为 ______ MB，可以通过配置参数 dfs.block.size 进行设置。
+
+答案：128
+
+62. （填空题，5.0 分）
+在 MapReduce 中，一个典型的 WordCount 程序中，Map 函数的输出是 <word, 1>，而 Reduce 函数的输出是 <word, count>，其中 count 表示 ________ 的次数。
+
+答案：该单词在文档中出现
+
+63. （填空题，5.0 分）
+在 MapReduce 中，Map 函数的输出格式通常为 ________，其中第一个元素是 ________，第二个元素是 ________。
+
+答案：键值对；Key；Value

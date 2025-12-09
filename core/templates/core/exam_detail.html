@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ paper.title }} - 沉浸式刷题</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .question-card.active {
+            display: flex;
+        }
+
+        .question-card {
+            display: none;
+        }
+
+        .slide-enter {
+            animation: slideIn 0.2s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- 顶部状态栏 -->
+    <header class="bg-white shadow-sm z-10 flex-shrink-0">
+        <div class="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="{% url 'exam_list' %}" class="p-2 -ml-2 text-gray-400 hover:text-gray-900 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </a>
+
+            <div class="flex flex-col items-center">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Question</span>
+                <span class="text-lg font-black text-gray-800">
+                    <span id="current-q-num">1</span>
+                    <span class="text-gray-300 text-sm font-normal">/ {{ questions|length }}</span>
+                </span>
+            </div>
+
+            <div class="w-8"></div>
+        </div>
+
+        <div class="h-1 bg-gray-100 w-full">
+            <div id="progress-bar" class="h-1 bg-indigo-500 transition-all duration-300" style="width: 0%"></div>
+        </div>
+    </header>
+
+    <!-- 主要内容区 -->
+    <main class="flex-1 overflow-y-auto relative bg-[#f0f2f5] px-4 py-6">
+        <div class="max-w-2xl mx-auto min-h-full flex flex-col justify-center pb-20">
+
+            {% if not questions %}
+            <div class="text-center text-gray-400 py-20">
+                <p>暂无题目数据...</p>
+                <p class="text-xs mt-2">请确认文件是否正确解析</p>
+            </div>
+            {% endif %}
+
+            {% for q in questions %}
+            <div class="question-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 min-h-[400px] flex-col"
+                id="q-card-{{ forloop.counter0 }}" data-index="{{ forloop.counter0 }}">
+
+                <!-- 题型标注 -->
+                <div class="mb-6 flex items-center space-x-2">
+                    <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                        {{ q.get_q_type_display|default:q.q_type }}
+                    </span>
+                    <span class="text-gray-300 text-xs font-mono">ID: {{ q.original_id }}</span>
+                </div>
+
+                <!-- 题目内容 -->
+                <div
+                    class="text-xl font-medium text-gray-800 leading-relaxed mb-8 flex-grow whitespace-pre-wrap font-sans">
+                    {{ q.content }}</div>
+
+                {% if q.q_type == 'single_choice' or q.q_type == 'multi_choice' %}
+                <!-- 选择题区域 -->
+                {% if q.options %}
+                <div class="space-y-3 mb-8 options-container" data-correct-answer="{{ q.answer }}"
+                    data-q-type="{{ q.q_type }}" id="options-{{ q.id }}">
+
+                    {% for opt in q.options %}
+                    <div onclick="selectOption(this, '{{ q.id }}', '{{ opt.label }}')"
+                        class="option-item cursor-pointer w-full text-left p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all duration-200 flex group relative"
+                        data-label="{{ opt.label }}">
+                        <span
+                            class="option-icon w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full text-sm font-bold mr-4 bg-white text-gray-500 border border-gray-200">
+                            {{ opt.label }}
+                        </span>
+                        <span class="text-gray-700 leading-8 text-lg">{{ opt.content }}</span>
+                    </div>
+                    {% endfor %}
+
+                    {% if q.q_type == 'multi_choice' %}
+                    <button onclick="checkMultiChoice('{{ q.id }}')"
+                        class="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition">
+                        提交答案
+                    </button>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% elif q.q_type == 'true_false' %}
+                <!-- 判断题区域 -->
+                <div class="grid grid-cols-2 gap-4 mb-8 options-container" data-correct-answer="{{ q.answer }}"
+                    data-q-type="true_false" id="options-{{ q.id }}">
+
+                    <div onclick="selectOption(this, '{{ q.id }}', 'A')"
+                        class="option-item cursor-pointer h-24 rounded-xl border border-gray-200 hover:bg-gray-50 flex flex-col items-center justify-center transition-all bg-white"
+                        data-label="A">
+                        <span class="font-bold text-lg mb-1">正确</span>
+                        <span class="option-icon hidden"></span>
+                    </div>
+
+                    <div onclick="selectOption(this, '{{ q.id }}', 'B')"
+                        class="option-item cursor-pointer h-24 rounded-xl border border-gray-200 hover:bg-gray-50 flex flex-col items-center justify-center transition-all bg-white"
+                        data-label="B">
+                        <span class="font-bold text-lg mb-1">错误</span>
+                        <span class="option-icon hidden"></span>
+                    </div>
+                </div>
+
+                {% elif q.q_type == 'fill_blank' %}
+                <!-- 填空题：根据答案数量生成输入框 -->
+                <div class="mb-8 space-y-4">
+                    {% if q.answer_parts %}
+                    {% for part in q.answer_parts %}
+                    <div class="flex items-center space-x-3">
+                        <span
+                            class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 font-bold flex items-center justify-center text-sm">
+                            {{ forloop.counter }}
+                        </span>
+                        <input type="text"
+                            class="flex-1 p-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 bg-gray-50 text-lg transition-colors"
+                            placeholder="填空项 {{ forloop.counter }}">
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <!-- Fallback if split failed -->
+                    <textarea
+                        class="w-full p-4 text-lg border-2 border-gray-200 rounded-xl focus:border-indigo-500 bg-gray-50 resize-y min-h-[100px]"></textarea>
+                    {% endif %}
+                </div>
+
+                {% elif q.q_type == 'essay' %}
+                <!-- 简答题 -->
+                <div class="mb-8">
+                    <textarea
+                        class="w-full p-4 text-lg border-2 border-gray-200 rounded-xl focus:border-indigo-500 bg-gray-50 resize-y min-h-[200px]"
+                        placeholder="在此输入你的主要观点..." rows="6"></textarea>
+                </div>
+                {% endif %}
+
+                <!-- 答案解析 -->
+                <div class="mt-auto pt-6 border-t border-gray-100">
+                    <button onclick="document.getElementById('ans-{{ q.id }}').classList.toggle('hidden')"
+                        class="w-full flex items-center justify-center space-x-2 text-indigo-600 py-2 hover:bg-indigo-50 rounded-lg transition-colors font-medium">
+                        <span>查看/隐藏 答案</span>
+                    </button>
+                    <div id="ans-{{ q.id }}" class="hidden mt-4 bg-green-50 rounded-xl p-5 border border-green-100">
+                        <div class="mb-3">
+                            <span
+                                class="text-xs font-bold text-green-600 tracking-wider uppercase mb-1 block">Answer</span>
+                            <div class="font-bold text-green-900 text-lg">{{ q.answer }}</div>
+                        </div>
+                        {% if q.explanation %}
+                        <div class="pt-3 border-t border-green-100">
+                            <span
+                                class="text-xs font-bold text-green-600 tracking-wider uppercase mb-1 block">Explanation</span>
+                            <div class="text-gray-700 text-sm leading-relaxed">{{ q.explanation }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+            {% endfor %}
+
+        </div>
+    </main>
+
+    <!-- 答题卡抽屉 (Right Drawer) -->
+    <div id="sheet-overlay" onclick="toggleSheet()" class="fixed inset-0 bg-black/20 z-40 hidden transition-opacity">
+    </div>
+    <div id="sheet-drawer"
+        class="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+            <h2 class="text-lg font-bold text-gray-800">答题卡</h2>
+            <button onclick="toggleSheet()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6">
+            <div class="grid grid-cols-5 gap-3">
+                {% for q in questions %}
+                <button onclick="jumpTo({{ forloop.counter0 }})" id="grid-btn-{{ forloop.counter0 }}"
+                    class="aspect-square rounded-lg border border-gray-200 flex items-center justify-center text-sm font-medium hover:border-indigo-500 hover:text-indigo-600 transition-colors">
+                    {{ forloop.counter }}
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="p-6 border-t border-gray-100 bg-gray-50">
+            <div class="grid grid-cols-3 gap-2 text-xs text-center text-gray-500 mb-4">
+                <div class="flex items-center justify-center gap-1">
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div> 正确
+                </div>
+                <div class="flex items-center justify-center gap-1">
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div> 错误
+                </div>
+                <div class="flex items-center justify-center gap-1">
+                    <div class="w-3 h-3 rounded-full bg-blue-600"></div> 当前
+                </div>
+            </div>
+            <a href="{% url 'exam_list' %}"
+                class="block w-full py-3 bg-gray-900 text-white text-center rounded-xl font-bold hover:bg-gray-800 transition">
+                结束练习
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Init state
+        let currentIndex = {{ initial_index }};
+        const total = {{ questions| length }};
+        let questionStatus = [];
+        for (let i = 0; i < total; i++) questionStatus[i] = 'p';
+
+        // DOM Elements
+        const prevBtn = document.getElementById('btn-prev');
+        const nextBtn = document.getElementById('btn-next');
+        const countSpan = document.getElementById('current-q-num');
+        const progressDiv = document.getElementById('progress-bar');
+
+        function showCard(index) {
+            // Check bounds
+            if (index < 0 || index >= total) return;
+
+            // Hide all
+            document.querySelectorAll('.question-card').forEach(el => {
+                el.classList.remove('active', 'slide-enter');
+            });
+
+            // Show current
+            const current = document.getElementById('q-card-' + index);
+            if (current) {
+                current.classList.add('active', 'slide-enter');
+            }
+
+            // Update UI Links
+            if (countSpan) countSpan.textContent = index + 1;
+            if (progressDiv) progressDiv.style.width = ((index + 1) / total * 100) + '%';
+
+            const prevButton = document.getElementById('btn-prev');
+            const nextButton = document.getElementById('btn-next');
+
+            if (prevButton) prevButton.disabled = (index === 0);
+            if (nextButton) nextButton.innerText = (index === total - 1) ? '完成' : '下一题';
+
+            updateGridUI(index);
+            if (window.innerWidth < 768) closeSheet();
+
+            // Sync API
+            fetch('/api/sync_progress/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: JSON.stringify({ paper_id: {{ paper.id }}, index: index })
+            }).catch (e => { });
+        }
+
+        function nextCard() {
+            if (currentIndex < total - 1) {
+                currentIndex++;
+                showCard(currentIndex);
+            } else {
+                if (confirm('已是最后一题，要结束练习吗？')) location.href = "{% url 'exam_list' %}";
+            }
+        }
+
+        function prevCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                showCard(currentIndex);
+            }
+        }
+
+        // Logic for Options
+        function selectOption(el, qId, label) {
+            const container = document.getElementById('options-' + qId);
+            const correctAnswer = container.dataset.correctAnswer.trim();
+            const qType = container.dataset.qType;
+            const cardIndex = parseInt(el.closest('.question-card').dataset.index);
+
+            // --- Multi Choice Logic ---
+            if (qType === 'multi_choice') {
+                if (el.classList.contains('bg-indigo-50')) {
+                    // Deselect
+                    el.classList.remove('bg-indigo-50', 'border-indigo-500');
+                    el.classList.add('border-gray-200', 'hover:bg-gray-50');
+                    el.querySelector('.option-icon').className = 'option-icon w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full text-sm font-bold mr-4 bg-white text-gray-500 border border-gray-200';
+                } else {
+                    // Select
+                    el.classList.remove('border-gray-200', 'hover:bg-gray-50');
+                    el.classList.add('bg-indigo-50', 'border-indigo-500');
+                    el.querySelector('.option-icon').className = 'option-icon w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full text-sm font-bold mr-4 bg-indigo-600 text-white border-indigo-600';
+                }
+                return;
+            }
+
+            // --- Single Choice / True False Logic ---
+            const allOpts = container.querySelectorAll('.option-item');
+
+            // Reset styles
+            allOpts.forEach(opt => {
+                opt.className = opt.className.replace(/bg-.*-50|border-.*-500|ring-.*/g, '');
+                opt.classList.add('border-gray-200', 'hover:bg-gray-50');
+                opt.querySelector('.option-icon').className = 'option-icon w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full text-sm font-bold mr-4 bg-white text-gray-500 border border-gray-200';
+            });
+
+            const isCorrect = (label === correctAnswer);
+
+            if (isCorrect) {
+                setStyle(el, 'green');
+                markStatus(cardIndex, true, qId);
+            } else {
+                setStyle(el, 'red');
+                markStatus(cardIndex, false, qId);
+
+                const correctOpt = container.querySelector(`.option-item[data-label="${correctAnswer}"]`);
+                if (correctOpt) setStyle(correctOpt, 'green');
+
+                const explanationDiv = document.getElementById('ans-' + qId);
+                if (explanationDiv) explanationDiv.classList.remove('hidden');
+            }
+        }
+
+        function checkMultiChoice(qId) {
+            const container = document.getElementById('options-' + qId);
+            const correctAnswer = container.dataset.correctAnswer.trim();
+            const card = container.closest('.question-card');
+            const cardIndex = parseInt(card.dataset.index);
+
+            const selectedOpts = Array.from(container.querySelectorAll('.option-item'))
+                .filter(el => el.classList.contains('bg-indigo-50'))
+                .map(el => el.dataset.label);
+
+            const userAns = selectedOpts.sort().join('');
+            const correctAns = correctAnswer.replace(/[^A-Z]/g, '').split('').sort().join('');
+
+            const isCorrect = (userAns === correctAns);
+
+            if (isCorrect) {
+                container.querySelectorAll('.option-item').forEach(el => {
+                    if (el.classList.contains('bg-indigo-50')) setStyle(el, 'green');
+                });
+                markStatus(cardIndex, true, qId);
+            } else {
+                container.querySelectorAll('.option-item').forEach(el => {
+                    if (el.classList.contains('bg-indigo-50')) setStyle(el, 'red');
+                });
+                document.getElementById('ans-' + qId).classList.remove('hidden');
+                markStatus(cardIndex, false, qId);
+            }
+        }
+
+        // Helper to set color
+        function setStyle(el, color) {
+            el.classList.remove('border-gray-200', 'hover:bg-gray-50', 'bg-indigo-50', 'border-indigo-500');
+            el.classList.add(`bg-${color}-50`, `border-${color}-500`);
+            el.querySelector('.option-icon').className = `option-icon w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full text-sm font-bold mr-4 bg-${color}-500 text-white border-${color}-500`;
+        }
+
+        // --- Grid & Drawer Helpers ---
+        function updateGridUI(activeIndex) {
+            for (let i = 0; i < total; i++) {
+                const btn = document.getElementById('grid-btn-' + i);
+                if (!btn) continue;
+
+                // Reset base classes
+                btn.className = "aspect-square rounded-lg border flex items-center justify-center text-sm font-medium transition-colors ";
+
+                if (i === activeIndex) {
+                    btn.className += "border-blue-600 bg-blue-50 text-blue-700 ring-2 ring-blue-200";
+                } else if (questionStatus[i] === 'c') {
+                    btn.className += "border-transparent bg-green-500 text-white";
+                } else if (questionStatus[i] === 'w') {
+                    btn.className += "border-transparent bg-red-500 text-white";
+                } else {
+                    btn.className += "border-gray-200 text-gray-600 hover:border-indigo-300 hover:text-indigo-600";
+                }
+            }
+        }
+
+        function markStatus(index, isCorrect, qId) {
+            questionStatus[index] = isCorrect ? 'c' : 'w';
+            updateGridUI(currentIndex);
+
+            // API Call to record answer
+            fetch('/api/submit_answer/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: JSON.stringify({
+                    paper_id: {{ paper.id }},
+                index: index,
+                question_id: qId,
+                is_correct: isCorrect
+                })
+            }).catch (e => console.error(e));
+        }
+
+        function jumpTo(index) {
+            currentIndex = index;
+            showCard(index);
+        }
+
+        function toggleSheet() {
+            const drawer = document.getElementById('sheet-drawer');
+            const overlay = document.getElementById('sheet-overlay');
+            const isOpen = !drawer.classList.contains('translate-x-full');
+
+            if (isOpen) {
+                closeSheet();
+            } else {
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+            }
+        }
+        function closeSheet() {
+            document.getElementById('sheet-drawer').classList.add('translate-x-full');
+            document.getElementById('sheet-overlay').classList.add('hidden');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Attach global click handlers if needed or just init state
+            showCard(currentIndex);
+        });
+
+    </script>
+
+    <!-- 底部控制栏 -->
+    <footer class="bg-white border-t border-gray-100 p-4 fixed bottom-0 w-full z-20">
+        <div class="max-w-2xl mx-auto flex justify-between items-center relative">
+
+            <button onclick="prevCard()" id="btn-prev" disabled
+                class="px-6 py-3 rounded-xl font-bold transition-colors flex items-center disabled:opacity-30 disabled:cursor-not-allowed text-gray-600 hover:bg-gray-100 bg-white border border-gray-200">
+                上一题
+            </button>
+
+            <!-- 答题卡Toggle按钮 (Middle) -->
+            <button onclick="toggleSheet()"
+                class="absolute left-1/2 transform -translate-x-1/2 p-3 rounded-full text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition border border-gray-200 shadow-sm"
+                title="打开答题卡">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
+                    </path>
+                </svg>
+            </button>
+
+            <button onclick="nextCard()" id="btn-next"
+                class="px-8 py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all transform active:scale-95 flex items-center">
+                下一题
+            </button>
+
+        </div>
+    </footer>
+
+</body>
+
+</html>
