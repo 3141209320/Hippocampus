@@ -7,6 +7,9 @@
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-5.0+-green.svg)](https://www.djangoproject.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-orange.svg?style=for-the-badge&logo=render)](https://hippocampus-zhx8.onrender.com)
+
+> **🚀 立即体验**: [https://hippocampus-zhx8.onrender.com](https://hippocampus-zhx8.onrender.com) (无需部署，直接注册使用)
 
 ---
 
@@ -45,7 +48,19 @@
 
 ## 🚀 快速开始
 
-### 📋 准备工作
+### 🌐 方式 1: 直接使用 (推荐)
+
+无需任何配置，直接访问我们的在线服务：
+
+👉 **[点击访问 Hippocampus 在线版](https://hippocampus-zhx8.onrender.com)**
+
+---
+
+### 💻 方式 2: 本地运行 (开发人员)
+
+如果你想在本地运行或进行二次开发，请参考以下步骤。
+
+#### 📋 准备工作
 
 在开始之前，请确保你的电脑已安装:
 
