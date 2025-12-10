@@ -32,14 +32,11 @@ class ExamPaperAdmin(admin.ModelAdmin):
     owner_display.short_description = "上传者"
     
     def is_public_display(self, obj):
+        from django.utils.safestring import mark_safe
         if obj.is_public:
-            return format_html(
-                '<span style="color: green; font-weight: bold;">✅ 公开</span>'
-            )
+            return mark_safe('<span style="color: green; font-weight: bold;">✅ 公开</span>')
         else:
-            return format_html(
-                '<span style="color: orange; font-weight: bold;">🔒 私有</span>'
-            )
+            return mark_safe('<span style="color: orange; font-weight: bold;">🔒 私有</span>')
     is_public_display.short_description = "可见性"
 
     def practice_link(self, obj):
