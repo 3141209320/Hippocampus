@@ -9,6 +9,7 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 media/
+staticfiles/
 
 # Environments
 .env
@@ -22,3 +23,23 @@ venv.bak/
 # IDEs
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test/Demo files
+test_*.py
+demo_*.py
+simple_demo.py
+*_demo.py
+demo_output.txt
+
+# Uploaded files
+uploads/
+*.txt
+!requirements.txt
+!build.sh

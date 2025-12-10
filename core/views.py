@@ -21,6 +21,9 @@ def upload_exam(request):
         if form.is_valid():
             paper = form.save(commit=False)
             paper.owner = request.user
+            # 如果是管理员上传,自动设为公开
+            if request.user.is_superuser or request.user.is_staff:
+                paper.is_public = True
             paper.save()
             # Parsing is triggered by post_save signal automatically
             return redirect('exam_detail', paper_id=paper.id)
@@ -62,9 +65,17 @@ def logout_view(request):
 
 @login_required
 def exam_list(request):
-    # Only show papers uploaded by this user Or public papers (if we had a public flag, let's show all for now)
-    # Showing all papers for simplicity in multi-user demo
-    papers = ExamPaper.objects.all().order_by('-created_at')
+    """
+    试卷列表:显示用户可见的试卷
+    - 公开的试卷(is_public=True)
+    - 用户自己上传的试卷
+    """
+    from django.db.models import Q
+    
+    papers = ExamPaper.objects.filter(
+        Q(is_public=True) | Q(owner=request.user)
+    ).order_by('-created_at')
+    
     return render(request, 'core/exam_list.html', {'papers': papers})
 
 @login_required

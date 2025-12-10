@@ -6,6 +6,7 @@ class ExamPaper(models.Model):
     title = models.CharField(_("试卷标题"), max_length=200)
     source_file = models.FileField(_("源文件"), upload_to='uploads/')
     owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_("上传者"), null=True, blank=True)
+    is_public = models.BooleanField(_("公开"), default=False, help_text="勾选后所有用户可见,取消勾选则仅上传者可见")
     created_at = models.DateTimeField(_("创建时间"), auto_now_add=True)
     
     class Meta:
